@@ -17,42 +17,48 @@ func main() {
 
 	lines := strings.Split(string(b), "\n")
 
-	// Removes nops.
+	// Remove NOPs.
 	{
 		updated := []string{}
 		for _, line := range lines {
-			if line != "nop" {
+			if line != "NOP" {
 				updated = append(updated, line)
 			}
 		}
 		lines = updated
 	}
 
-loop:
-	for i := 0; i < len(lines)-1; i++ {
-		if strings.HasSuffix(lines[i], ":") && strings.HasSuffix(lines[i+1], ":") {
-			l1, l2 := strings.TrimSuffix(lines[i], ":"), strings.TrimSuffix(lines[i+1], ":")
-			updated := []string{}
+	for {
+		updated := false
+		for i := 0; i < len(lines)-1; i++ {
+			if strings.HasSuffix(lines[i], ":") && strings.HasSuffix(lines[i+1], ":") {
+				l1, l2 := strings.TrimSuffix(lines[i], ":"), strings.TrimSuffix(lines[i+1], ":")
+				updatedLines := []string{}
 
-			for j, line := range lines {
-				if j == i {
-					continue
+				for j, line := range lines {
+					if j == i {
+						continue
+					}
+
+					if strings.HasSuffix(line, l1) {
+						updatedLines = append(updatedLines, strings.TrimSuffix(line, l1)+l2)
+					} else {
+						updatedLines = append(updatedLines, line)
+					}
 				}
 
-				if strings.HasSuffix(line, l1) {
-					updated = append(updated, strings.TrimSuffix(line, l1)+l2)
-				} else {
-					updated = append(updated, line)
-				}
+				lines = updatedLines
+				updated = true
 			}
-
-			lines = updated
-
-			goto loop
+		}
+		if !updated {
+			break
 		}
 	}
 
 	for _, line := range lines {
-		fmt.Println(line)
+		if line != "" {
+			fmt.Println(line)
+		}
 	}
 }
